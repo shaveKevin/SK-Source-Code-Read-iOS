@@ -11,3 +11,5 @@ iOS源码阅读
 |  游贤明 Animation | [Animation源码阅读](./ AnimationRead/ AnimationReadREADME.md)        |
 |  YYModel | [YYModel源码阅读](./YYModel/YYModelREADME.md)        |
 =======
+
+YYModel源码阅读解析：[YYModel](http://www.shavekevin.com/2016/06/27/yymodelsourcecoderreader/)
