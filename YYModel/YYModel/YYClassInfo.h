@@ -15,7 +15,10 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- Type encoding's type.
+ Type encoding's type. 编码的方式 这里定义了三种 
+ YYEncodingTypeMask  变量
+ YYEncodingTypeQualifierMask  方法
+ YYEncodingTypePropertyMask   属性
  */
 typedef NS_OPTIONS(NSUInteger, YYEncodingType) {
     YYEncodingTypeMask       = 0xFF, ///< mask of type value
@@ -51,7 +54,7 @@ typedef NS_OPTIONS(NSUInteger, YYEncodingType) {
     YYEncodingTypeQualifierBycopy = 1 << 12, ///< bycopy
     YYEncodingTypeQualifierByref  = 1 << 13, ///< byref
     YYEncodingTypeQualifierOneway = 1 << 14, ///< oneway
-    
+    /// 属性包括 只读 拷贝 retain  weak  getter  setter  @dynamic
     YYEncodingTypePropertyMask         = 0xFF0000, ///< mask of property
     YYEncodingTypePropertyReadonly     = 1 << 16, ///< readonly
     YYEncodingTypePropertyCopy         = 1 << 17, ///< copy
@@ -61,6 +64,10 @@ typedef NS_OPTIONS(NSUInteger, YYEncodingType) {
     YYEncodingTypePropertyCustomGetter = 1 << 21, ///< getter=
     YYEncodingTypePropertyCustomSetter = 1 << 22, ///< setter=
     YYEncodingTypePropertyDynamic      = 1 << 23, ///< @dynamic
+    
+    /**
+     *  @brief @dynamic 是相对于 @synthesize 的，它们同样用于修饰 @property，用于生成对应的的 getter 和 setter 方法。但是 @ dynamic 表示这个成员变量的 getter 和 setter 方法并不是直接由编译器生成，而是手工生成或者运行时生成。
+     */
 };
 
 /**
@@ -85,6 +92,21 @@ YYEncodingType YYEncodingGetType(const char *typeEncoding);
 @property (nonatomic, assign, readonly) ptrdiff_t offset;       ///< Ivar's offset
 @property (nonatomic, strong, readonly) NSString *typeEncoding; ///< Ivar's type encoding
 @property (nonatomic, assign, readonly) YYEncodingType type;    ///< Ivar's type
+/*
+ 
+ Ivar 在objc中被定义为：
+ typedef struct objc_ivar *Ivar;
+ 它是一个指向objc_ivar结构体的指针，结构体有如下定义：
+ struct objc_ivar {
+ char *ivar_name                                          OBJC2_UNAVAILABLE;
+ char *ivar_type                                          OBJC2_UNAVAILABLE;
+ int ivar_offset                                          OBJC2_UNAVAILABLE;
+ #ifdef __LP64__
+ int space                                                OBJC2_UNAVAILABLE;
+ #endif
+ }                                                            OBJC2_UNAVAILABLE;
+ 这里我们注意第三个成员 ivar_offset。它表示基地址偏移字节
+ */
 
 /**
  Creates and returns an ivar info object.
