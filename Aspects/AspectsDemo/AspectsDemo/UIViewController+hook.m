@@ -7,7 +7,7 @@
 //
 
 #import "UIViewController+hook.h"
-#import <Aspects/Aspects.h>
+#import "Aspects/Aspects.h"
 
 @implementation UIViewController (hook)
 
