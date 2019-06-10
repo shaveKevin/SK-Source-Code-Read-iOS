@@ -3,7 +3,7 @@
 //  SKCacheListVC.m
 //  YYCacheDemo
 //
-//  Created by houzhiwei on 2019/5/29.
+//  Created by shavekevin on 2019/5/29.
 //  Copyright © 2019 shavekevin. All rights reserved.
 //
 
@@ -18,6 +18,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    self.view.backgroundColor = [UIColor redColor];
 }
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];

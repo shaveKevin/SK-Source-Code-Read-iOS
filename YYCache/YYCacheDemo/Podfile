@@ -4,13 +4,10 @@ platform :ios, '9.0'
 target 'YYCacheDemo' do
   # Uncomment the next line if you're using Swift or would like to use dynamic frameworks
   # use_frameworks!
-pod 'YYCache'
-  # Pods for YYCacheDemo
-pod 'WoodPeckeriOS', :configurations => ['Debug']
+# Pods for YYCacheDemo
 pod 'AFNetworking', '~> 3.2.1'
 pod 'SDWebImage'
 pod 'YYModel', '~> 1.0.4'
 pod 'JSONKit-NoWarning', '~> 1.2'
-pod 'Aspects', '~> 1.4.1'
 
 end

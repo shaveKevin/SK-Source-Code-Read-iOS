@@ -2,17 +2,24 @@
 //  ViewController.m
 //  YYCacheDemo
 //
-//  Created by houzhiwei on 2019/5/27.
+//  Created by shavekevin on 2019/5/27.
 //  Copyright © 2019 shavekevin. All rights reserved.
 //
 
 #import "ViewController.h"
-#import <YYCache/YYCache.h>
+#import "YYCache.h"
 #import <JSONKit-NoWarning/JSONKit.h>
 #import "SKCacheListModel.h"
 #import <YYModel/YYModel.h>
 #import "SKCacheListVC.h"
-
+/*
+ * Demo目的阅读YYCache源码
+ * 收获
+ * 1.了解YYCache原理
+ * 2.对LRU算法理解加深
+ * 3.具体问题：YYCache如何实现缓存？
+ * 4.具体问题：YYCache适用什么样的场景？
+ */
 @interface ViewController ()
 
 @property (nonatomic, strong) YYCache *cache;

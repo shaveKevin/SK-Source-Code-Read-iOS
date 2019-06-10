@@ -7,6 +7,7 @@
 //
 
 #import "ViewController.h"
+#import "SKAspectsVC.h"
 /*
  * Demo目的阅读Aspects源码
  * 收获
@@ -21,10 +22,19 @@
 
 @implementation ViewController
 
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    self.view.backgroundColor = [UIColor whiteColor];
 }
 
-
+- (void)viewWillAppear:(BOOL)animated {
+   [super viewWillAppear:animated];
+    NSLog(@"父类的viewWillAppear=");
+}
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    SKAspectsVC * spectsVC = [[SKAspectsVC alloc]init];
+    [self.navigationController pushViewController:spectsVC animated:YES];
+}
 @end

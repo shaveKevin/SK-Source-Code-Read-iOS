@@ -2,12 +2,11 @@
 //  AppDelegate.m
 //  YYCacheDemo
 //
-//  Created by houzhiwei on 2019/5/27.
+//  Created by shavekevin on 2019/5/27.
 //  Copyright © 2019 shavekevin. All rights reserved.
 //
 
 #import "AppDelegate.h"
-#import "UIViewController+hook.h"
 
 @interface AppDelegate ()
 
@@ -18,7 +17,6 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
-    [UIViewController hook];
     return YES;
 }
 
