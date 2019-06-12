@@ -16,6 +16,8 @@
 		D74152E6229E6EFE0019A166 /* Aspects.m in Sources */ = {isa = PBXBuildFile; fileRef = D74152E5229E6EFE0019A166 /* Aspects.m */; };
 		D74152E9229E6F270019A166 /* UIViewController+hook.m in Sources */ = {isa = PBXBuildFile; fileRef = D74152E7229E6F270019A166 /* UIViewController+hook.m */; };
 		D74152EC229E6F760019A166 /* SKAspectsVC.m in Sources */ = {isa = PBXBuildFile; fileRef = D74152EB229E6F760019A166 /* SKAspectsVC.m */; };
+		D765AEF822ADFDFD00C7B87D /* SKSuperModel.m in Sources */ = {isa = PBXBuildFile; fileRef = D765AEF722ADFDFD00C7B87D /* SKSuperModel.m */; };
+		D765AEFB22ADFE0A00C7B87D /* SKSubModel.m in Sources */ = {isa = PBXBuildFile; fileRef = D765AEFA22ADFE0A00C7B87D /* SKSubModel.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,6 +37,10 @@
 		D74152E8229E6F270019A166 /* UIViewController+hook.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+hook.h"; sourceTree = "<group>"; };
 		D74152EA229E6F760019A166 /* SKAspectsVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SKAspectsVC.h; sourceTree = "<group>"; };
 		D74152EB229E6F760019A166 /* SKAspectsVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SKAspectsVC.m; sourceTree = "<group>"; };
+		D765AEF622ADFDFD00C7B87D /* SKSuperModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SKSuperModel.h; sourceTree = "<group>"; };
+		D765AEF722ADFDFD00C7B87D /* SKSuperModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SKSuperModel.m; sourceTree = "<group>"; };
+		D765AEF922ADFE0A00C7B87D /* SKSubModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SKSubModel.h; sourceTree = "<group>"; };
+		D765AEFA22ADFE0A00C7B87D /* SKSubModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SKSubModel.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,6 +81,7 @@
 				D74152EB229E6F760019A166 /* SKAspectsVC.m */,
 				D74152E8229E6F270019A166 /* UIViewController+hook.h */,
 				D74152E7229E6F270019A166 /* UIViewController+hook.m */,
+				D765AEF522ADFDF200C7B87D /* SKInheritTest */,
 				D74152D3229E6ED50019A166 /* Main.storyboard */,
 				D74152E3229E6EFE0019A166 /* Aspects */,
 				D74152D6229E6ED70019A166 /* Assets.xcassets */,
@@ -92,6 +99,17 @@
 				D74152E5229E6EFE0019A166 /* Aspects.m */,
 			);
 			path = Aspects;
+			sourceTree = "<group>";
+		};
+		D765AEF522ADFDF200C7B87D /* SKInheritTest */ = {
+			isa = PBXGroup;
+			children = (
+				D765AEF622ADFDFD00C7B87D /* SKSuperModel.h */,
+				D765AEF722ADFDFD00C7B87D /* SKSuperModel.m */,
+				D765AEF922ADFE0A00C7B87D /* SKSubModel.h */,
+				D765AEFA22ADFE0A00C7B87D /* SKSubModel.m */,
+			);
+			path = SKInheritTest;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -164,6 +182,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D765AEFB22ADFE0A00C7B87D /* SKSubModel.m in Sources */,
+				D765AEF822ADFDFD00C7B87D /* SKSuperModel.m in Sources */,
 				D74152E9229E6F270019A166 /* UIViewController+hook.m in Sources */,
 				D74152D2229E6ED50019A166 /* ViewController.m in Sources */,
 				D74152EC229E6F760019A166 /* SKAspectsVC.m in Sources */,

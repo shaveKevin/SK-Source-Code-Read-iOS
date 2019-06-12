@@ -8,6 +8,8 @@
 
 #import "ViewController.h"
 #import "SKAspectsVC.h"
+#import "SKSubModel.h"
+
 /*
  * Demo目的阅读Aspects源码
  * 收获
@@ -27,6 +29,8 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     self.view.backgroundColor = [UIColor whiteColor];
+    SKSubModel *subModel = [[SKSubModel alloc]init];
+    [subModel runInheritMode];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
