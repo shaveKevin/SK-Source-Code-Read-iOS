@@ -37,6 +37,7 @@
    [super viewWillAppear:animated];
     NSLog(@"父类的viewWillAppear=");
 }
+
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     SKAspectsVC * spectsVC = [[SKAspectsVC alloc]init];
     [self.navigationController pushViewController:spectsVC animated:YES];

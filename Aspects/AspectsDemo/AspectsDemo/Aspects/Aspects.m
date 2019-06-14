@@ -19,32 +19,38 @@ typedef NS_OPTIONS(int, AspectBlockFlags) {
 	AspectBlockFlagsHasCopyDisposeHelpers = (1 << 25),
 	AspectBlockFlagsHasSignature          = (1 << 30)
 };
+// 定义_AspectBlock结构体
 typedef struct _AspectBlock {
-	__unused Class isa;
-	AspectBlockFlags flags;
-	__unused int reserved;
+	__unused Class isa;// isa
+	AspectBlockFlags flags;//flags 标识
+	__unused int reserved;//
 	void (__unused *invoke)(struct _AspectBlock *block, ...);
 	struct {
 		unsigned long int reserved;
 		unsigned long int size;
 		// requires AspectBlockFlagsHasCopyDisposeHelpers
-		void (*copy)(void *dst, const void *src);
-		void (*dispose)(const void *);
+		void (*copy)(void *dst, const void *src);// copy
+		void (*dispose)(const void *);// dispose
 		// requires AspectBlockFlagsHasSignature
-		const char *signature;
-		const char *layout;
+		const char *signature;// 标识
+		const char *layout;// 布局
 	} *descriptor;
 	// imported variables
 } *AspectBlockRef;
 
 @interface AspectInfo : NSObject <AspectInfo>
+// 初始化
 - (id)initWithInstance:(__unsafe_unretained id)instance invocation:(NSInvocation *)invocation;
+
 @property (nonatomic, unsafe_unretained, readonly) id instance;
+// 参数数组
 @property (nonatomic, strong, readonly) NSArray *arguments;
+// 原来的Invocation
 @property (nonatomic, strong, readonly) NSInvocation *originalInvocation;
+
 @end
 
-// Tracks a single aspect.
+// Tracks a single aspect.Aspect标识
 @interface AspectIdentifier : NSObject
 + (instancetype)identifierWithSelector:(SEL)selector object:(id)object options:(AspectOptions)options block:(id)block error:(NSError **)error;
 - (BOOL)invokeWithInfo:(id<AspectInfo>)info;
@@ -55,27 +61,37 @@ typedef struct _AspectBlock {
 @property (nonatomic, assign) AspectOptions options;
 @end
 
-// Tracks all aspects for an object/class.
+// Tracks all aspects for an object/class.Aspects 容器
 @interface AspectsContainer : NSObject
+//添加一个Aspects
 - (void)addAspect:(AspectIdentifier *)aspect withOptions:(AspectOptions)injectPosition;
+//移除一个Aspects
 - (BOOL)removeAspect:(id)aspect;
+//是否存在Aspects
 - (BOOL)hasAspects;
+// 在before时机 hook的Aspects数组
 @property (atomic, copy) NSArray *beforeAspects;
+// 替换时机 hook的Aspects数组
 @property (atomic, copy) NSArray *insteadAspects;
+// 在hook方法调用之后 hook的Aspects数组
 @property (atomic, copy) NSArray *afterAspects;
+
 @end
 
+// track类
 @interface AspectTracker : NSObject
+// 初始化track 传入parent
 - (id)initWithTrackedClass:(Class)trackedClass parent:(AspectTracker *)parent;
-@property (nonatomic, strong) Class trackedClass;
-@property (nonatomic, strong) NSMutableSet *selectorNames;
-@property (nonatomic, weak) AspectTracker *parentEntry;
-@end
+@property (nonatomic, strong) Class trackedClass;// 被track的类
+@property (nonatomic, strong) NSMutableSet *selectorNames;// 被track的方法
+@property (nonatomic, weak) AspectTracker *parentEntry;// 父类track对象
 
+@end
+//NSInvocation array扩展   目的是获取aspects的参数
 @interface NSInvocation (Aspects)
 - (NSArray *)aspects_arguments;
 @end
-
+// 过滤
 #define AspectPositionFilter 0x07
 
 #define AspectError(errorCode, errorDescription) do { \
@@ -557,15 +573,15 @@ static NSMutableDictionary *aspect_getSwizzledClassesDict() {
     });
     return swizzledClassesDict;
 }
-
+// hook的方法是否被允许
 static BOOL aspect_isSelectorAllowedAndTrack(NSObject *self, SEL selector, AspectOptions options, NSError **error) {
-    static NSSet *disallowedSelectorList;
+    static NSSet *disallowedSelectorList;// 不允许hook的方法集合
     static dispatch_once_t pred;
     dispatch_once(&pred, ^{
         disallowedSelectorList = [NSSet setWithObjects:@"retain", @"release", @"autorelease", @"forwardInvocation:", nil];
     });
 
-    // Check against the blacklist.
+    // Check against the blacklist.检查是否有不允许hook的方法
     NSString *selectorName = NSStringFromSelector(selector);
     if ([disallowedSelectorList containsObject:selectorName]) {
         NSString *errorDescription = [NSString stringWithFormat:@"Selector %@ is blacklisted.", selectorName];
@@ -573,7 +589,7 @@ static BOOL aspect_isSelectorAllowedAndTrack(NSObject *self, SEL selector, Aspec
         return NO;
     }
 
-    // Additional checks.
+    // Additional checks.进一步check. hook dealloc的时候只能在执行dealloc之前
     AspectOptions position = options&AspectPositionFilter;
     if ([selectorName isEqualToString:@"dealloc"] && position != AspectPositionBefore) {
         NSString *errorDesc = @"AspectPositionBefore is the only valid position when hooking dealloc.";

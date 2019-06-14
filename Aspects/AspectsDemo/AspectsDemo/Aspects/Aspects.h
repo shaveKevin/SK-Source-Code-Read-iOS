@@ -47,21 +47,21 @@ typedef NS_OPTIONS(NSUInteger, AspectOptions) {
  */
 @interface NSObject (Aspects)
 
-/// Adds a block of code before/instead/after the current `selector` for a specific class.
+/// Adds a block of code before/instead/after the current `selector` for a specific(类方法) class.(为指定的类的方法添加一个block代码，在方法执行之前，替换方法，或者方法执行之后)
 ///
-/// @param block Aspects replicates the type signature of the method being hooked.
-/// The first parameter will be `id<AspectInfo>`, followed by all parameters of the method.
-/// These parameters are optional and will be filled to match the block signature.
-/// You can even use an empty block, or one that simple gets `id<AspectInfo>`.
+/// @param block Aspects replicates the type signature of the method being hooked.(当方法被hook之到的时候做的操作)
+/// The first parameter will be `id<AspectInfo>`, followed by all parameters of the method.（block的第一个参数为id<AspectInfo>）
+/// These parameters are optional and will be filled to match the block signature.(当匹配到对应的block快的时候，这些参数会被填充)
+/// You can even use an empty block, or one that simple gets `id<AspectInfo>`.(你甚至可以用一个空的block)
 ///
-/// @note Hooking static methods is not supported.
-/// @return A token which allows to later deregister the aspect.
+/// @note Hooking static methods is not supported.(静态方法是不允许被hook的)
+/// @return A token which allows to later deregister the aspect.(返回一个token用于注销这个aspect)
 + (id<AspectToken>)aspect_hookSelector:(SEL)selector
                       withOptions:(AspectOptions)options
                        usingBlock:(id)block
                             error:(NSError **)error;
 
-/// Adds a block of code before/instead/after the current `selector` for a specific instance.
+/// Adds a block of code before/instead/after the current `selector` for a specific instance.(实例方法)
 - (id<AspectToken>)aspect_hookSelector:(SEL)selector
                       withOptions:(AspectOptions)options
                        usingBlock:(id)block
@@ -71,15 +71,15 @@ typedef NS_OPTIONS(NSUInteger, AspectOptions) {
 
 
 typedef NS_ENUM(NSUInteger, AspectErrorCode) {
-    AspectErrorSelectorBlacklisted,                   /// Selectors like release, retain, autorelease are blacklisted.
-    AspectErrorDoesNotRespondToSelector,              /// Selector could not be found.
-    AspectErrorSelectorDeallocPosition,               /// When hooking dealloc, only AspectPositionBefore is allowed.
-    AspectErrorSelectorAlreadyHookedInClassHierarchy, /// Statically hooking the same method in subclasses is not allowed.
-    AspectErrorFailedToAllocateClassPair,             /// The runtime failed creating a class pair.
-    AspectErrorMissingBlockSignature,                 /// The block misses compile time signature info and can't be called.
-    AspectErrorIncompatibleBlockSignature,            /// The block signature does not match the method or is too large.
+    AspectErrorSelectorBlacklisted,                   /// Selectors like release, retain, autorelease are blacklisted. 方法被release retain和autorelease被加到黑名单中。
+    AspectErrorDoesNotRespondToSelector,              /// Selector could not be found.被hook的方法找不到
+    AspectErrorSelectorDeallocPosition,               /// When hooking dealloc, only AspectPositionBefore is allowed.当hook dealloc的时候
+    AspectErrorSelectorAlreadyHookedInClassHierarchy, /// Statically hooking the same method in subclasses is not allowed.hook子类中相同的方法不被允许
+    AspectErrorFailedToAllocateClassPair,             /// The runtime failed creating a class pair.运行时创建一个类失败
+    AspectErrorMissingBlockSignature,                 /// The block misses compile time signature info and can't be called. 在编译期Block缺少signature也不会被调用
+    AspectErrorIncompatibleBlockSignature,            /// The block signature does not match the method or is too large.block signature和方法不匹配或者太大了
 
-    AspectErrorRemoveObjectAlreadyDeallocated = 100   /// (for removing) The object hooked is already deallocated.
+    AspectErrorRemoveObjectAlreadyDeallocated = 100   /// (for removing) The object hooked is already deallocated.当被hook的方法被销毁的时候
 };
 
 extern NSString *const AspectErrorDomain;
