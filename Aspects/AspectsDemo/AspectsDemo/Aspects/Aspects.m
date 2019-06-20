@@ -93,7 +93,7 @@ typedef struct _AspectBlock {
 @end
 // 过滤
 #define AspectPositionFilter 0x07
-
+// 错误信息
 #define AspectError(errorCode, errorDescription) do { \
 AspectLogError(@"Aspects: %@", errorDescription); \
 if (error) { *error = [NSError errorWithDomain:AspectErrorDomain code:errorCode userInfo:@{NSLocalizedDescriptionKey: errorDescription}]; }}while(0)
@@ -106,14 +106,15 @@ static NSString *const AspectsMessagePrefix = @"aspects_";
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Public Aspects API
-
+// 类方法根据传入的要hook的方法名以及hook时机 hook打到之后返回block 拿到hook后的对象，对对象做逻辑处理。
 + (id<AspectToken>)aspect_hookSelector:(SEL)selector
                       withOptions:(AspectOptions)options
                        usingBlock:(id)block
                             error:(NSError **)error {
+    // 在调用的时候先要把方法和调用者添加到aspects数组里
     return aspect_add((id)self, selector, options, block, error);
 }
-
+// 返回一个token 主要用于使用完毕之后注销这个aspect
 /// @return A token which allows to later deregister the aspect.
 - (id<AspectToken>)aspect_hookSelector:(SEL)selector
                       withOptions:(AspectOptions)options
@@ -133,7 +134,7 @@ static id aspect_add(id self, SEL selector, AspectOptions options, id block, NSE
     __block AspectIdentifier *identifier = nil;
     // 线程安全内执行(如果方法允许被hook 那么返回hook对象)
     aspect_performLocked(^{
-        //
+        //aspects_的方法是否允许被hook
         if (aspect_isSelectorAllowedAndTrack(self, selector, options, error)) {
             // 获取hook方法的容器
             AspectsContainer *aspectContainer = aspect_getContainerForObject(self, selector);
@@ -184,7 +185,7 @@ static SEL aspect_aliasForSelector(SEL selector) {
     NSCParameterAssert(selector);
 	return NSSelectorFromString([AspectsMessagePrefix stringByAppendingFormat:@"_%@", NSStringFromSelector(selector)]);
 }
-
+//aspect_blockMethod 方法的标识
 static NSMethodSignature *aspect_blockMethodSignature(id block, NSError **error) {
     AspectBlockRef layout = (__bridge void *)block;
 	if (!(layout->flags & AspectBlockFlagsHasSignature)) {
