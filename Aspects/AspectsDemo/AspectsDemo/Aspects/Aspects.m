@@ -131,11 +131,15 @@ static id aspect_add(id self, SEL selector, AspectOptions options, id block, NSE
     NSCParameterAssert(block);
 
     __block AspectIdentifier *identifier = nil;
+    // 线程安全内执行(如果方法允许被hook 那么返回hook对象)
     aspect_performLocked(^{
+        //
         if (aspect_isSelectorAllowedAndTrack(self, selector, options, error)) {
+            // 获取hook方法的容器
             AspectsContainer *aspectContainer = aspect_getContainerForObject(self, selector);
             identifier = [AspectIdentifier identifierWithSelector:selector object:self options:options block:block error:error];
             if (identifier) {
+                // 如果能找到方法的标识，那么就把这个AspectIdentifier添加到容器中。
                 [aspectContainer addAspect:identifier withOptions:options];
 
                 // Modify the class to allow message interception.
@@ -175,7 +179,7 @@ static void aspect_performLocked(dispatch_block_t block) {
     block();
     OSSpinLockUnlock(&aspect_lock);
 }
-
+// 生成新的方法 方法名字为 aspects_xxx
 static SEL aspect_aliasForSelector(SEL selector) {
     NSCParameterAssert(selector);
 	return NSSelectorFromString([AspectsMessagePrefix stringByAppendingFormat:@"_%@", NSStringFromSelector(selector)]);
@@ -536,7 +540,9 @@ static void __ASPECTS_ARE_BEING_CALLED__(__unsafe_unretained NSObject *self, SEL
 // Loads or creates the aspect container.
 static AspectsContainer *aspect_getContainerForObject(NSObject *self, SEL selector) {
     NSCParameterAssert(self);
+    //.根据alias拿到对应的方法
     SEL aliasSelector = aspect_aliasForSelector(selector);
+    // 如果根据方法名拿不到AspectsContainer的话 new一个然后去setter 这里就是根据objc_getAssociatedObject关联对象进行设置，把方法当做标识来处理 根据标识找到对应的方法 生成对象
     AspectsContainer *aspectContainer = objc_getAssociatedObject(self, aliasSelector);
     if (!aspectContainer) {
         aspectContainer = [AspectsContainer new];
@@ -564,7 +570,7 @@ static void aspect_destroyContainerForObject(id<NSObject> self, SEL selector) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Selector Blacklist Checking
-
+// 创建一个单例
 static NSMutableDictionary *aspect_getSwizzledClassesDict() {
     static NSMutableDictionary *swizzledClassesDict;
     static dispatch_once_t pred;
@@ -596,23 +602,26 @@ static BOOL aspect_isSelectorAllowedAndTrack(NSObject *self, SEL selector, Aspec
         AspectError(AspectErrorSelectorDeallocPosition, errorDesc);
         return NO;
     }
-
+// respondsToSelector:当调用者是类时，该方法是判断这个类中是否实现了指定的『类方法』当调用者是实例的时候，该方法是判断这个类中是否实现了『实例方法』 instancesRespondToSelector 类中是否实现了指定的『实例方法』
+// 如果当前实例不能响应方法并且类也不能响应对应的实例方法 那么抛出异常。 表明被hook的目标方法不允许被hook
     if (![self respondsToSelector:selector] && ![self.class instancesRespondToSelector:selector]) {
         NSString *errorDesc = [NSString stringWithFormat:@"Unable to find selector -[%@ %@].", NSStringFromClass(self.class), selectorName];
         AspectError(AspectErrorDoesNotRespondToSelector, errorDesc);
         return NO;
     }
-
+//
     // Search for the current class and the class hierarchy IF we are modifying a class object
     if (class_isMetaClass(object_getClass(self))) {
+        // 如果当前类为一个原类的时候，
         Class klass = [self class];
         NSMutableDictionary *swizzledClassesDict = aspect_getSwizzledClassesDict();
         Class currentClass = [self class];
         do {
+            // 从swizzledClassesDict 根据类名获取track实体，如果被track的方法中包含当前方法名，在判断当前track的父类track是否存在，如果父类的父类的track存在那么抛出异常，因为一个类只允许被hook一次
             AspectTracker *tracker = swizzledClassesDict[currentClass];
             if ([tracker.selectorNames containsObject:selectorName]) {
 
-                // Find the topmost class for the log.
+                // Find the topmost class for the log. 找到最底层的那个类
                 if (tracker.parentEntry) {
                     AspectTracker *topmostEntry = tracker.parentEntry;
                     while (topmostEntry.parentEntry) {
@@ -622,12 +631,12 @@ static BOOL aspect_isSelectorAllowedAndTrack(NSObject *self, SEL selector, Aspec
                     AspectError(AspectErrorSelectorAlreadyHookedInClassHierarchy, errorDescription);
                     return NO;
                 }else if (klass == currentClass) {
-                    // Already modified and topmost!
+                    // Already modified and topmost!已经hook到最底层的类了。(父类track不存在，并且clss等于当前类，那么就hook到底层了)
                     return YES;
                 }
             }
         }while ((currentClass = class_getSuperclass(currentClass)));
-
+// 如果当前类的superclass等于当前类 停止do while循环
         // Add the selector as being modified.
         currentClass = klass;
         AspectTracker *parentTracker = nil;
@@ -641,6 +650,7 @@ static BOOL aspect_isSelectorAllowedAndTrack(NSObject *self, SEL selector, Aspec
             // All superclasses get marked as having a subclass that is modified.
             parentTracker = tracker;
         }while ((currentClass = class_getSuperclass(currentClass)));
+        //
     }
 
     return YES;
@@ -884,7 +894,7 @@ static void aspect_deregisterTrackedSelector(id self, SEL selector) {
 @implementation AspectInfo
 
 @synthesize arguments = _arguments;
-
+// 初始化AspectInfo
 - (id)initWithInstance:(__unsafe_unretained id)instance invocation:(NSInvocation *)invocation {
     NSCParameterAssert(instance);
     NSCParameterAssert(invocation);
@@ -894,7 +904,7 @@ static void aspect_deregisterTrackedSelector(id self, SEL selector) {
     }
     return self;
 }
-
+// 懒加载参数列表 self.originalInvocation.aspects_arguments
 - (NSArray *)arguments {
     // Lazily evaluate arguments, boxing is expensive.
     if (!_arguments) {
