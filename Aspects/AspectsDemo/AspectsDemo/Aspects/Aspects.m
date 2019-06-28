@@ -50,7 +50,8 @@ typedef struct _AspectBlock {
 
 @end
 
-// Tracks a single aspect.Aspect标识
+// Tracks a single aspect.Aspect标识  一个Aspects的具体内容
+//单个的 aspect 的具体信息，包括执行时机，要执行 block 所需要用到的具体信息：包括方法签名、参数等等
 @interface AspectIdentifier : NSObject
 + (instancetype)identifierWithSelector:(SEL)selector object:(id)object options:(AspectOptions)options block:(id)block error:(NSError **)error;
 - (BOOL)invokeWithInfo:(id<AspectInfo>)info;
@@ -61,7 +62,7 @@ typedef struct _AspectBlock {
 @property (nonatomic, assign) AspectOptions options;
 @end
 
-// Tracks all aspects for an object/class.Aspects 容器
+// Tracks all aspects for an object/class.Aspects 容器 一个对象或者类所有的Aspects整体情况
 @interface AspectsContainer : NSObject
 //添加一个Aspects
 - (void)addAspect:(AspectIdentifier *)aspect withOptions:(AspectOptions)injectPosition;
@@ -282,6 +283,7 @@ static IMP aspect_getMsgForwardIMP(NSObject *self, SEL selector) {
 #endif
     return msgForwardIMP;
 }
+// 核心部分  开始准备hook方法(这个self指的是hook方法的调用者)
 
 static void aspect_prepareClassAndHookSelector(NSObject *self, SEL selector, NSError **error) {
     NSCParameterAssert(selector);
@@ -360,7 +362,7 @@ static void aspect_cleanupHookedClassAndSelector(NSObject *self, SEL selector) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Hook Class
-
+// 根据类拿到对应的hookClass
 static Class aspect_hookClass(NSObject *self, NSError **error) {
     NSCParameterAssert(self);
 	Class statedClass = self.class;
@@ -893,7 +895,7 @@ static void aspect_deregisterTrackedSelector(id self, SEL selector) {
 #pragma mark - AspectInfo
 
 @implementation AspectInfo
-
+//一个 Aspect 执行环境，主要是 NSInvocation 信息。
 @synthesize arguments = _arguments;
 // 初始化AspectInfo
 - (id)initWithInstance:(__unsafe_unretained id)instance invocation:(NSInvocation *)invocation {

@@ -21,6 +21,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		D73927AE22C612220079BC7C /* AspectsExplainFile.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AspectsExplainFile.md; sourceTree = "<group>"; };
 		D74152CA229E6ED50019A166 /* AspectsDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AspectsDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D74152CD229E6ED50019A166 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		D74152CE229E6ED50019A166 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -81,6 +82,7 @@
 				D74152EB229E6F760019A166 /* SKAspectsVC.m */,
 				D74152E8229E6F270019A166 /* UIViewController+hook.h */,
 				D74152E7229E6F270019A166 /* UIViewController+hook.m */,
+				D73927AE22C612220079BC7C /* AspectsExplainFile.md */,
 				D765AEF522ADFDF200C7B87D /* SKInheritTest */,
 				D74152D3229E6ED50019A166 /* Main.storyboard */,
 				D74152E3229E6EFE0019A166 /* Aspects */,

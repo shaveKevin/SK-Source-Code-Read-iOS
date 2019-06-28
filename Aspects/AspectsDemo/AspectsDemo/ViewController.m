@@ -15,7 +15,7 @@
  * 收获
  * 1.了解aspects原理
  * 2.对runtime理解加深
- * 3.具体问题：为什么hook的时候hook到子类而父类没有hook到？
+ * 3.具体问题：为什么hook的时候hook到子类而父类没有hook到？ 因为在hook的时候父类只能被hook一次，所以在hook的时候不是说子类被hook了，而父类没有hook到，父类被hook了，只不过只是被hook一次而已。
  * 4.具体问题：Aspects适用什么样的场景？
  */
 @interface ViewController ()
@@ -42,4 +42,5 @@
     SKAspectsVC * spectsVC = [[SKAspectsVC alloc]init];
     [self.navigationController pushViewController:spectsVC animated:YES];
 }
+
 @end
