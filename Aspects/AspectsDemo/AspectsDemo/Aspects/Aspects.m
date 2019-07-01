@@ -283,7 +283,7 @@ static IMP aspect_getMsgForwardIMP(NSObject *self, SEL selector) {
 #endif
     return msgForwardIMP;
 }
-// 核心部分  开始准备hook方法(这个self指的是hook方法的调用者)
+// 核心部分  开始准备hook方法(这个self指的是hook方法的调用者) 一个是对对象进行swizzing一个是对类进行swizzing
 
 static void aspect_prepareClassAndHookSelector(NSObject *self, SEL selector, NSError **error) {
     NSCParameterAssert(selector);
@@ -385,19 +385,22 @@ static Class aspect_hookClass(NSObject *self, NSError **error) {
 	const char *subclassName = [className stringByAppendingString:AspectsSubclassSuffix].UTF8String;
 	Class subclass = objc_getClass(subclassName);
 
-	if (subclass == nil) {
-		subclass = objc_allocateClassPair(baseClass, subclassName, 0);
-		if (subclass == nil) {
+    if (subclass == nil) {
+        subclass = objc_allocateClassPair(baseClass, subclassName, 0);
+        if (subclass == nil) {
+            //  如果内存分配之后还为空，那就报错了
             NSString *errrorDesc = [NSString stringWithFormat:@"objc_allocateClassPair failed to allocate class %s.", subclassName];
             AspectError(AspectErrorFailedToAllocateClassPair, errrorDesc);
             return nil;
         }
-
-		aspect_swizzleForwardInvocation(subclass);
-		aspect_hookedGetClass(subclass, statedClass);
-		aspect_hookedGetClass(object_getClass(subclass), statedClass);
-		objc_registerClassPair(subclass);
-	}
+        // 替换掉系统的方法，
+        aspect_swizzleForwardInvocation(subclass);
+        // hook get 方法
+        aspect_hookedGetClass(subclass, statedClass);
+        aspect_hookedGetClass(object_getClass(subclass), statedClass);
+        // 方法注册
+        objc_registerClassPair(subclass);
+    }
 
 	object_setClass(self, subclass);
 	return subclass;
@@ -406,7 +409,7 @@ static Class aspect_hookClass(NSObject *self, NSError **error) {
 static NSString *const AspectsForwardInvocationSelectorName = @"__aspects_forwardInvocation:";
 static void aspect_swizzleForwardInvocation(Class klass) {
     NSCParameterAssert(klass);
-    // If there is no method, replace will act like class_addMethod.
+    // If there is no method, replace will act like class_addMethod.  如果方法不存在那么就add存在就替换
     IMP originalImplementation = class_replaceMethod(klass, @selector(forwardInvocation:), (IMP)__ASPECTS_ARE_BEING_CALLED__, "v@:@");
     if (originalImplementation) {
         class_addMethod(klass, NSSelectorFromString(AspectsForwardInvocationSelectorName), originalImplementation, "v@:@");
