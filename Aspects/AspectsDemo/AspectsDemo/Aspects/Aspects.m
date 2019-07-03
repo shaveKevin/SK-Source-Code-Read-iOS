@@ -289,6 +289,7 @@ static void aspect_prepareClassAndHookSelector(NSObject *self, SEL selector, NSE
     NSCParameterAssert(selector);
     Class klass = aspect_hookClass(self, error);
     Method targetMethod = class_getInstanceMethod(klass, selector);
+    // 将selector 指向了一个转发的IMP，同时生成了一个aliasSelector，指向了原来的IMP,同时为了防止重复的hook，做了一个判断。如果发现selector已经指向了转发的IMP,那么久就不需要交换了。
     IMP targetMethodIMP = method_getImplementation(targetMethod);
     if (!aspect_isMsgForwardIMP(targetMethodIMP)) {
         // Make a method alias for the existing method implementation, it not already copied.
@@ -489,12 +490,15 @@ for (AspectIdentifier *aspect in aspects) {\
     } \
 }
 
-// This is the swizzled forwardInvocation: method.
+// This is the swizzled forwardInvocation: method. 消息转发的最终代码
 static void __ASPECTS_ARE_BEING_CALLED__(__unsafe_unretained NSObject *self, SEL selector, NSInvocation *invocation) {
     NSCParameterAssert(self);
     NSCParameterAssert(invocation);
+    // 原来的方法
     SEL originalSelector = invocation.selector;
+    // 最后生成apects自己的方法aspects_xxx
 	SEL aliasSelector = aspect_aliasForSelector(invocation.selector);
+    
     invocation.selector = aliasSelector;
     AspectsContainer *objectContainer = objc_getAssociatedObject(self, aliasSelector);
     AspectsContainer *classContainer = aspect_getContainerForClass(object_getClass(self), aliasSelector);
@@ -524,7 +528,8 @@ static void __ASPECTS_ARE_BEING_CALLED__(__unsafe_unretained NSObject *self, SEL
     aspect_invoke(classContainer.afterAspects, info);
     aspect_invoke(objectContainer.afterAspects, info);
 
-    // If no hooks are installed, call original implementation (usually to throw an exception)
+    // If no hooks are installed, call original implementation (usually to throw an exception)  手动调用消息转发
+    //找不到aliasSelector的IMP实现，没有找到原来的逻辑，进行消息转发
     if (!respondsToAlias) {
         invocation.selector = originalSelector;
         SEL originalForwardInvocationSEL = NSSelectorFromString(AspectsForwardInvocationSelectorName);
@@ -535,7 +540,7 @@ static void __ASPECTS_ARE_BEING_CALLED__(__unsafe_unretained NSObject *self, SEL
         }
     }
 
-    // Remove any hooks that are queued for deregistration.
+    // Remove any hooks that are queued for deregistration. remove hook
     [aspectsToRemove makeObjectsPerformSelector:@selector(remove)];
 }
 #undef aspect_invoke
@@ -556,7 +561,7 @@ static AspectsContainer *aspect_getContainerForObject(NSObject *self, SEL select
     }
     return aspectContainer;
 }
-
+//根据klass 和 selector 找到对应的AspectsContainer
 static AspectsContainer *aspect_getContainerForClass(Class klass, SEL selector) {
     NSCParameterAssert(klass);
     AspectsContainer *classContainer = nil;
@@ -859,6 +864,7 @@ static void aspect_deregisterTrackedSelector(id self, SEL selector) {
 @implementation AspectsContainer
 
 - (BOOL)hasAspects {
+    //  三个数组依次对应的是三个不同的状态hook
     return self.beforeAspects.count > 0 || self.insteadAspects.count > 0 || self.afterAspects.count > 0;
 }
 
